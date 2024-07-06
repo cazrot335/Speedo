@@ -12,6 +12,8 @@ import VectorSource from "ol/source/Vector";
 import Icon from "ol/style/Icon";
 import Style from "ol/style/Style";
 import Stroke from "ol/style/Stroke";
+import Text from "ol/style/Text";
+import Fill from "ol/style/Fill";
 import "ol/ol.css";
 
 const createColoredMarker = (color) => {
@@ -36,6 +38,8 @@ const OpenLayersMap = () => {
   const vectorSource = useRef(new VectorSource()).current;
   const [destinationMarker, setDestinationMarker] = useState(null);
   const [placeName, setPlaceName] = useState('');
+  const [distance, setDistance] = useState(null);
+  const [speedLimits, setSpeedLimits] = useState([]);
   const mapboxAccessToken = "sk.eyJ1IjoiY2F6cm90MzM1IiwiYSI6ImNseTh5aDE4cDBraTMya3M2ajdrNzV4NnkifQ.g_LPmWADVqli_5zqaIPxXg"; // Your Mapbox access token
 
   useEffect(() => {
@@ -163,7 +167,8 @@ const OpenLayersMap = () => {
             })
             .then(data => {
               if (data.routes && data.routes.length > 0) {
-                const routeCoordinates = data.routes[0].geometry.coordinates.map(coord => fromLonLat(coord));
+                const route = data.routes[0];
+                const routeCoordinates = route.geometry.coordinates.map(coord => fromLonLat(coord));
                 const routeFeature = new Feature({
                   geometry: new LineString(routeCoordinates),
                 });
@@ -186,17 +191,77 @@ const OpenLayersMap = () => {
 
                 // Add the new route feature
                 vectorSource.addFeature(routeFeature);
+
+                // Update distance state
+                setDistance(route.distance);
+
+                // Mock function to get speed limits
+                const speedLimitData = getSpeedLimitsForRoute(route.geometry.coordinates);
+                setSpeedLimits(speedLimitData);
               } else {
                 console.error("No route found");
+                setDistance(null);
               }
             })
-            .catch(error => console.error('Error fetching route:', error));
+            .catch(error => {
+              console.error('Error fetching route:', error);
+              setDistance(null);
+            });
         } else {
           console.error("Place not found");
+          setDistance(null);
         }
       })
-      .catch(error => console.error('Error fetching place:', error));
+      .catch(error => {
+        console.error('Error fetching place:', error);
+        setDistance(null);
+      });
   };
+
+  const getSpeedLimitsForRoute = (coordinates) => {
+    // Mock speed limit data
+    return coordinates.map(coord => {
+      return {
+        coord,
+        speedLimit: Math.floor(Math.random() * 80) + 20 // Random speed limit between 20 and 100
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      // Clear previous speed limit markers
+      vectorSource.getFeatures().forEach(feature => {
+        if (feature.get('isSpeedLimit')) {
+          vectorSource.removeFeature(feature);
+        }
+      });
+
+      // Add new speed limit markers
+      speedLimits.forEach(limit => {
+        const speedLimitMarker = new Feature({
+          geometry: new Point(fromLonLat(limit.coord)),
+          isSpeedLimit: true
+        });
+
+        speedLimitMarker.setStyle(
+          new Style({
+            text: new Text({
+              text: `${limit.speedLimit} km/h`,
+              font: '12px Calibri,sans-serif',
+              fill: new Fill({ color: '#000' }),
+              stroke: new Stroke({
+                color: '#fff', width: 2
+              }),
+              offsetY: -15,
+            })
+          })
+        );
+
+        vectorSource.addFeature(speedLimitMarker);
+      });
+    }
+  }, [speedLimits, vectorSource]);
 
   return (
     <div>
@@ -210,7 +275,12 @@ const OpenLayersMap = () => {
         />
         <button type="submit">Go</button>
       </form>
-      <div ref={mapRef} style={{ width: "100%", height: "90vh" }} />
+      <div ref={mapRef} style={{ width: "100%", height: "85vh" }} />
+      {distance !== null && (
+        <div style={{ padding: "10px", background: "#fff", textAlign: "center" }}>
+          Distance: {(distance / 1000).toFixed(2)} km
+        </div>
+      )}
     </div>
   );
 };
