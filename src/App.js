@@ -37,7 +37,6 @@ const OpenLayersMap = () => {
   const [destinationMarker, setDestinationMarker] = useState(null);
   const [placeName, setPlaceName] = useState('');
   const mapboxAccessToken = "sk.eyJ1IjoiY2F6cm90MzM1IiwiYSI6ImNseTh5aDE4cDBraTMya3M2ajdrNzV4NnkifQ.g_LPmWADVqli_5zqaIPxXg"; // Your Mapbox access token
-  const openWeatherApiKey = "511d249cc2c0a8b993b73a70024572ed"; // Your OpenWeatherMap API key
 
   useEffect(() => {
     // Initialize the map only once
@@ -112,8 +111,8 @@ const OpenLayersMap = () => {
   const handlePlaceNameSubmit = (event) => {
     event.preventDefault();
 
-    // Fetch place data from OpenWeatherMap API
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${placeName}&appid=${openWeatherApiKey}&units=metric`)
+    // Fetch place data from Nominatim API
+    fetch(`https://nominatim.openstreetmap.org/search?q=${placeName}&format=json&limit=1`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -121,76 +120,80 @@ const OpenLayersMap = () => {
         return response.json();
       })
       .then(data => {
-        const { lon, lat } = data.coord;
-        const clickedCoord = fromLonLat([lon, lat]);
+        if (data.length > 0) {
+          const { lon, lat } = data[0];
+          const clickedCoord = fromLonLat([parseFloat(lon), parseFloat(lat)]);
 
-        // Update or create the destination marker
-        let newDestinationMarker;
-        if (destinationMarker) {
-          destinationMarker.getGeometry().setCoordinates(clickedCoord);
-          newDestinationMarker = destinationMarker;
-        } else {
-          newDestinationMarker = new Feature({
-            geometry: new Point(clickedCoord),
-          });
+          // Update or create the destination marker
+          let newDestinationMarker;
+          if (destinationMarker) {
+            destinationMarker.getGeometry().setCoordinates(clickedCoord);
+            newDestinationMarker = destinationMarker;
+          } else {
+            newDestinationMarker = new Feature({
+              geometry: new Point(clickedCoord),
+            });
 
-          // Set the style for the destination marker
-          newDestinationMarker.setStyle(
-            new Style({
-              image: new Icon({
-                src: createColoredMarker("red"), // Use the custom colored marker
-                anchor: [0.5, 1],
-                imgSize: [20, 20],
-              }),
+            // Set the style for the destination marker
+            newDestinationMarker.setStyle(
+              new Style({
+                image: new Icon({
+                  src: createColoredMarker("red"), // Use the custom colored marker
+                  anchor: [0.5, 1],
+                  imgSize: [20, 20],
+                }),
+              })
+            );
+
+            setDestinationMarker(newDestinationMarker);
+            vectorSource.addFeature(newDestinationMarker);
+          }
+
+          // Get current location in longitude and latitude
+          const startCoords = toLonLat(currentLocation);
+          const endCoords = [parseFloat(lon), parseFloat(lat)];
+
+          // Fetch route data from Mapbox Directions API
+          fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}?geometries=geojson&access_token=${mapboxAccessToken}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              return response.json();
             })
-          );
+            .then(data => {
+              if (data.routes && data.routes.length > 0) {
+                const routeCoordinates = data.routes[0].geometry.coordinates.map(coord => fromLonLat(coord));
+                const routeFeature = new Feature({
+                  geometry: new LineString(routeCoordinates),
+                });
 
-          setDestinationMarker(newDestinationMarker);
-          vectorSource.addFeature(newDestinationMarker);
+                routeFeature.setStyle(
+                  new Style({
+                    stroke: new Stroke({
+                      color: "green",
+                      width: 2,
+                    }),
+                  })
+                );
+
+                // Remove any existing route features
+                vectorSource.getFeatures().forEach(feature => {
+                  if (feature.getGeometry().getType() === 'LineString') {
+                    vectorSource.removeFeature(feature);
+                  }
+                });
+
+                // Add the new route feature
+                vectorSource.addFeature(routeFeature);
+              } else {
+                console.error("No route found");
+              }
+            })
+            .catch(error => console.error('Error fetching route:', error));
+        } else {
+          console.error("Place not found");
         }
-
-        // Get current location in longitude and latitude
-        const startCoords = toLonLat(currentLocation);
-        const endCoords = [lon, lat];
-
-        // Fetch route data from Mapbox Directions API
-        fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}?geometries=geojson&access_token=${mapboxAccessToken}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(data => {
-            if (data.routes && data.routes.length > 0) {
-              const routeCoordinates = data.routes[0].geometry.coordinates.map(coord => fromLonLat(coord));
-              const routeFeature = new Feature({
-                geometry: new LineString(routeCoordinates),
-              });
-
-              routeFeature.setStyle(
-                new Style({
-                  stroke: new Stroke({
-                    color: "green",
-                    width: 2,
-                  }),
-                })
-              );
-
-              // Remove any existing route features
-              vectorSource.getFeatures().forEach(feature => {
-                if (feature.getGeometry().getType() === 'LineString') {
-                  vectorSource.removeFeature(feature);
-                }
-              });
-
-              // Add the new route feature
-              vectorSource.addFeature(routeFeature);
-            } else {
-              console.error("No route found");
-            }
-          })
-          .catch(error => console.error('Error fetching route:', error));
       })
       .catch(error => console.error('Error fetching place:', error));
   };
@@ -213,6 +216,3 @@ const OpenLayersMap = () => {
 };
 
 export default OpenLayersMap;
-
-
-
