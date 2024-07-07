@@ -40,7 +40,7 @@ const OpenLayersMap = () => {
   const [placeName, setPlaceName] = useState('');
   const [distance, setDistance] = useState(null);
   const [speedLimits, setSpeedLimits] = useState([]);
-  const mapboxAccessToken = "sk.eyJ1IjoiY2F6cm90MzM1IiwiYSI6ImNseTh5aDE4cDBraTMya3M2ajdrNzV4NnkifQ.g_LPmWADVqli_5zqaIPxXg"; // Your Mapbox access token
+  const mapboxAccessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
   useEffect(() => {
     // Initialize the map only once
