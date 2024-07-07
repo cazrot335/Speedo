@@ -5,6 +5,7 @@ import Point from "ol/geom/Point";
 import Icon from "ol/style/Icon";
 import Style from "ol/style/Style";
 import createColoredMarker from "./createColoredMarker"; // Utility function to create colored markers
+import ButtonIcon from "./UIComponents/ButtonIcon"; // Import your ButtonIcon component
 
 const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
   const [placeName, setPlaceName] = useState('');
@@ -62,9 +63,10 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
         placeholder="Enter place name"
         required
       />
-      <button type="submit">Go</button>
+      <ButtonIcon /> {/* Replace the button with ButtonIcon component */}
     </form>
   );
 };
 
 export default PlaceSearchForm;
+
