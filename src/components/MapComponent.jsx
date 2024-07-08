@@ -48,3 +48,4 @@ const MapComponent = ({ currentLocation, vectorSource }) => {
 
 export default MapComponent;
 
+
