@@ -5,6 +5,7 @@ import TileLayer from "ol/layer/Tile";
 import OSM from "ol/source/OSM";
 import VectorLayer from 'ol/layer/Vector';
 import "ol/ol.css";
+import './style.css'; // Import the CSS file
 
 const MapComponent = ({ currentLocation, vectorSource }) => {
   const mapRef = useRef(null);
@@ -42,7 +43,8 @@ const MapComponent = ({ currentLocation, vectorSource }) => {
     }
   }, [currentLocation]);
 
-  return <div ref={mapRef} style={{ width: "100%", height: "85vh" }} />;
+  return <div ref={mapRef} className="map-container" />;
 };
 
 export default MapComponent;
+

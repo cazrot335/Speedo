@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState, useRef } from "react";
 import VectorSource from "ol/source/Vector";
 import MapComponent from "./components/MapComponent";
@@ -6,6 +7,7 @@ import DestinationMarker from "./components/DestinationMarker";
 import Route from "./components/Route";
 import SpeedLimitMarkers from "./components/SpeedLimitMarkers";
 import PlaceSearchForm from "./components/PlaceSearchForm";
+import './components/style.css';
 
 const App = () => {
   const [currentLocation, setCurrentLocation] = useState([0, 0]);
@@ -17,8 +19,10 @@ const App = () => {
 
   return (
     <div>
-      <PlaceSearchForm setDestinationMarker={setDestinationMarker} vectorSource={vectorSource} />
-      <MapComponent currentLocation={currentLocation} vectorSource={vectorSource} />
+      <div className="map-container">
+        <PlaceSearchForm setDestinationMarker={setDestinationMarker} vectorSource={vectorSource} />
+        <MapComponent currentLocation={currentLocation} vectorSource={vectorSource} />
+      </div>
       <CurrentLocationMarker vectorSource={vectorSource} setCurrentLocation={setCurrentLocation} />
       <DestinationMarker destinationMarker={destinationMarker} setDestinationMarker={setDestinationMarker} vectorSource={vectorSource} />
       <Route
@@ -40,4 +44,3 @@ const App = () => {
 };
 
 export default App;
-

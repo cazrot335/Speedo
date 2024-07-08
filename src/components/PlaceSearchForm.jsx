@@ -4,8 +4,8 @@ import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
 import Icon from "ol/style/Icon";
 import Style from "ol/style/Style";
-import createColoredMarker from "./createColoredMarker"; // Utility function to create colored markers
-import ButtonIcon from "./UIComponents/ButtonIcon"; // Import your ButtonIcon component
+import createColoredMarker from "./createColoredMarker";
+import SearchBar from "./UIComponents/SearchBar"; // Import the SearchBar component
 
 const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
   const [placeName, setPlaceName] = useState('');
@@ -27,8 +27,7 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
           const clickedCoord = fromLonLat([parseFloat(lon), parseFloat(lat)]);
 
           // Update or create the destination marker
-          let newDestinationMarker;
-          newDestinationMarker = new Feature({
+          let newDestinationMarker = new Feature({
             geometry: new Point(clickedCoord),
           });
 
@@ -36,7 +35,7 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
           newDestinationMarker.setStyle(
             new Style({
               image: new Icon({
-                src: createColoredMarker("red"), // Use the custom colored marker
+                src: createColoredMarker("red"),
                 anchor: [0.5, 1],
                 imgSize: [20, 20],
               }),
@@ -55,18 +54,12 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
   };
 
   return (
-    <form onSubmit={handlePlaceNameSubmit}>
-      <input
-        type="text"
-        value={placeName}
-        onChange={(e) => setPlaceName(e.target.value)}
-        placeholder="Enter place name"
-        required
-      />
-      <ButtonIcon /> {/* Replace the button with ButtonIcon component */}
-    </form>
+    <SearchBar
+      placeName={placeName}
+      setPlaceName={setPlaceName}
+      handlePlaceNameSubmit={handlePlaceNameSubmit}
+    />
   );
 };
 
 export default PlaceSearchForm;
-

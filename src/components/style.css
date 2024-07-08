@@ -1,0 +1,54 @@
+/* styles.css */
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* src/components/style.css */
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* Make the map cover the whole viewport */
+}
+
+.place-search-form {
+  position: absolute;
+  top: 20px;
+  right: 100px;
+  z-index: 1000;
+   /* Ensure the form is above the map */
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+}
+
+.search-input {
+  padding-right: 50px; /* Adjusted padding to fit the button */
+  height: 50px; /* Search bar height */
+  width: 300px; 
+  border-radius: 50px;/* Adjust width as needed */
+}
+
+.search-button {
+  position: absolute;
+  right: 20px; /* 20px margin from the right end of the search bar */
+  height: 30px; /* Button height */
+  width: 30px;
+  border-radius: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color:transparent;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  top: 10px; /* Vertically center the button */
+}
+
+.search-button:hover {
+  background-color: #f0f0f0;
+}
