@@ -27,9 +27,10 @@ const SearchBar = ({ placeName, setPlaceName, handlePlaceNameSubmit }) => {
   };
 
   const handleSelectSuggestion = (suggestion) => {
-    // Handle the selected suggestion here
-    console.log('Selected suggestion:', suggestion);
-    // You can update state or perform other actions based on the selected suggestion
+    // Update the input field with the selected suggestion
+    setPlaceName(suggestion.display_name);
+    // Clear the suggestions
+    setSuggestions([]);
   };
 
   // Clear suggestions when placeName changes
@@ -54,16 +55,18 @@ const SearchBar = ({ placeName, setPlaceName, handlePlaceNameSubmit }) => {
           required
         />
         <button className="search-button" type="submit">
-        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24">
-<path d="M 10 2 C 5.589 2 2 5.589 2 10 C 2 14.411 5.589 18 10 18 C 11.936 18 13.713609 17.307203 15.099609 16.158203 L 20.720703 21.779297 C 20.866703 21.925297 21.058 22 21.25 22 C 21.442 22 21.633297 21.926297 21.779297 21.779297 C 22.072297 21.486297 22.072297 21.013703 21.779297 20.720703 L 16.158203 15.099609 C 17.307203 13.713609 18 11.936 18 10 C 18 5.589 14.411 2 10 2 z M 10 3.5 C 13.584 3.5 16.5 6.416 16.5 10 C 16.5 13.584 13.584 16.5 10 16.5 C 6.416 16.5 3.5 13.584 3.5 10 C 3.5 6.416 6.416 3.5 10 3.5 z M 10 5 A 5 5 0 0 0 10 15 A 5 5 0 0 0 10 5 z"></path>
-</svg>
+          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M 10 2 C 5.589 2 2 5.589 2 10 C 2 14.411 5.589 18 10 18 C 11.936 18 13.713609 17.307203 15.099609 16.158203 L 20.720703 21.779297 C 20.866703 21.925297 21.058 22 21.25 22 C 21.442 22 21.633297 21.926297 21.779297 21.779297 C 22.072297 21.486297 22.072297 21.013703 21.779297 20.720703 L 16.158203 15.099609 C 17.307203 13.713609 18 11.936 18 10 C 18 5.589 14.411 2 10 2 z M 10 3.5 C 13.584 3.5 16.5 6.416 16.5 10 C 16.5 13.584 13.584 16.5 10 16.5 C 6.416 16.5 3.5 13.584 3.5 10 C 3.5 6.416 6.416 3.5 10 3.5 z M 10 5 A 5 5 0 0 0 10 15 A 5 5 0 0 0 10 5 z"></path>
+          </svg>
         </button>
       </label>
       {/* Display suggestions */}
       <ul className="suggestions-list">
         {suggestions.map((suggestion) => (
           <li key={suggestion.place_id}>
-            <button onClick={() => handleSelectSuggestion(suggestion)}>{suggestion.display_name}</button>
+            <button type="button" onClick={() => handleSelectSuggestion(suggestion)}>
+              {suggestion.display_name}
+            </button>
           </li>
         ))}
       </ul>
@@ -72,3 +75,4 @@ const SearchBar = ({ placeName, setPlaceName, handlePlaceNameSubmit }) => {
 };
 
 export default SearchBar;
+
