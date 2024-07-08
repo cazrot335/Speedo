@@ -1,10 +1,14 @@
+import React from 'react';
 import { IoChevronForwardSharp } from 'react-icons/io5';
 
-export  default function ButtonIcon() {
+const ButtonIcon = () => {
   return (
-    <button>
+    <button className="search-button" type="submit">
       <IoChevronForwardSharp size={24} />
     </button>
   );
-}
+};
+
+export default ButtonIcon;
+
 

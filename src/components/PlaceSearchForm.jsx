@@ -9,6 +9,7 @@ import SearchBar from "./UIComponents/SearchBar"; // Import the SearchBar compon
 
 const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
   const [placeName, setPlaceName] = useState('');
+  const [destinationMarker, setDestinationMarkerState] = useState(null); // State to hold the destination marker
 
   const handlePlaceNameSubmit = (event) => {
     event.preventDefault();
@@ -26,8 +27,8 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
           const { lon, lat } = data[0];
           const clickedCoord = fromLonLat([parseFloat(lon), parseFloat(lat)]);
 
-          // Update or create the destination marker
-          let newDestinationMarker = new Feature({
+          // Create a new destination marker
+          const newDestinationMarker = new Feature({
             geometry: new Point(clickedCoord),
           });
 
@@ -42,8 +43,15 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
             })
           );
 
-          setDestinationMarker(newDestinationMarker);
+          // Remove existing marker if it exists
+          if (destinationMarker) {
+            vectorSource.removeFeature(destinationMarker);
+          }
+
+          // Add new marker to the vector source and set it as the current destination marker
           vectorSource.addFeature(newDestinationMarker);
+          setDestinationMarker(newDestinationMarker);
+          setDestinationMarkerState(newDestinationMarker); // Update local state
         } else {
           console.error("Place not found");
         }
@@ -63,3 +71,4 @@ const PlaceSearchForm = ({ setDestinationMarker, vectorSource }) => {
 };
 
 export default PlaceSearchForm;
+
