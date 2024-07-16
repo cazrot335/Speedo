@@ -41,14 +41,14 @@ const SearchBar = ({ placeName, setPlaceName, handlePlaceNameSubmit }) => {
     const distance = calculateDistance(currentLocation, [suggestion.lon, suggestion.lat]);
     setDistance(distance);
 
-    // Fetch climate details for the selected place (replace with your actual API call)
+    // Fetch climate details for the selected place
     fetchClimateDetails(suggestion.lat, suggestion.lon).then(setClimate);
 
     // Update the input value to the selected place name
     setPlaceName(suggestion.display_name);
   };
 
-  // Function to calculate distance (Haversine formula)
+  // Function to calculate distance (using Haversine formula)
   const calculateDistance = (currentLocation, destination) => {
     const [lon1, lat1] = currentLocation;
     const [lon2, lat2] = destination;
@@ -60,15 +60,27 @@ const SearchBar = ({ placeName, setPlaceName, handlePlaceNameSubmit }) => {
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
+    const distance = R * c * 1000; // Convert to meters
     return distance.toFixed(2);
   };
 
-  // Function to fetch climate details (replace with your actual API call)
+  // Function to fetch climate details from Tomorrow.io API
   const fetchClimateDetails = async (lat, lon) => {
-    // Fetch climate data from an API
-    // ...
-    return "Sunny"; // Example data
+    try {
+      const response = await fetch(`https://api.tomorrow.io/v4/weather/forecast?location=${lat},${lon}&apikey=${process.env.REACT_APP_TOMORROW_API_KEY}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log('Climate data:', data); // Log the response data to inspect its structure
+
+      // Adjust the following line based on the actual response structure
+      const weatherCode = data.data.timelines[0].intervals[0].values.weatherCode;
+      return weatherCode; // Example data, adjust based on actual response structure
+    } catch (error) {
+      console.error('Error fetching climate details:', error);
+      return "Unknown";
+    }
   };
 
   // Clear suggestions when placeName changes
@@ -126,7 +138,9 @@ const SearchBar = ({ placeName, setPlaceName, handlePlaceNameSubmit }) => {
         </ul>
       </form>
       {/* Place Details Footer */}
-      <PlaceDetails placeDetails={selectedPlace} distance={distance} climate={climate} />
+      {selectedPlace && (
+        <PlaceDetails placeDetails={selectedPlace} distance={distance} climate={climate} />
+      )}
     </>
   );
 };

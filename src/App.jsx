@@ -34,11 +34,7 @@ const App = () => {
         setSpeedLimits={setSpeedLimits}
       />
       <SpeedLimitMarkers speedLimits={speedLimits} vectorSource={vectorSource} />
-      {distance !== null && (
-        <div style={{ padding: "10px", background: "#fff", textAlign: "center" }}>
-          Distance: {(distance / 1000).toFixed(2)} km
-        </div>
-      )}
+   
     </div>
   );
 };

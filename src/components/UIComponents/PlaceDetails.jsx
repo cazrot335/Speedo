@@ -1,5 +1,5 @@
 import React from 'react';
-import '../style.css'; // Create a separate CSS file for styling
+import '../style.css';
 
 const PlaceDetails = ({ placeDetails, distance, climate }) => {
   if (!placeDetails) return null;
@@ -7,11 +7,12 @@ const PlaceDetails = ({ placeDetails, distance, climate }) => {
   return (
     <div className="place-details-footer">
       <h3>{placeDetails.display_name}</h3>
-      <p>Distance: {distance} km</p>
-      <p>Description: {placeDetails.description}</p>
-      <p>Climate: {climate}</p>
+      <p><strong>Distance:</strong> {(distance / 1000).toFixed(2)} km</p>
+      <p><strong>Climate:</strong> {climate}</p>
+      {/* Add additional details as needed */}
     </div>
   );
 };
 
 export default PlaceDetails;
+
